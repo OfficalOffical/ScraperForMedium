@@ -117,6 +117,8 @@ def pullDataFromWeb(webHolder):
                 clapHolder.append(clap)
                 followerHolder.append(follower)
                 numberOfImages.append(len(img))
+        else:
+            print("Data not full " ,counter)
 
 
 
@@ -163,7 +165,7 @@ def scrapeWebFromArchive():
     webRedirectingForMonth = []
     webRedirectingForDay = []
 
-    for x in range(2009, 2015 + 1):
+    for x in range(2009, 2012 + 1):
 
 
         print("Started scaping Websites from year : " + str(x))
