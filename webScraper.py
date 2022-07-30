@@ -10,7 +10,6 @@ import json
 
 
 
-
 def mainWebScraper():
 
     temp2 = scrapeWebFromArchive()
@@ -65,50 +64,85 @@ def mainWebScraper():
 
 
 def pullDataFromWeb(webHolder):
-
+    counter = 0
+    print("Started scraping from Web archives")
+    titleHolder = []
+    dateHolder = []
+    tagsHolder = []
+    readingTimeHolder = []
     textIndexHolder = []
     clapHolder = []
     followerHolder = []
+    numberOfImages = []
+
+    print("This website contains :", len(webHolder), "pages")
 
     for pages in webHolder:
+        counter +=1
         tempTextHolder = []
 
+        try:
+            page = requests.get(pages)
+        except Exception as e:
+            print("we got error ",counter)
+            continue
 
-
-        page = requests.get(pages)
-
-        clap, follower = aditionalValues(pages)
 
         soup = BeautifulSoup(page.content, 'html.parser')
 
+        img = soup.find_all('img',  class_="cf")
+
+        date = soup.find_all('p', class_="pw-published-date")
+
+        title = soup.find_all('h1', class_='pw-post-title')
+
         text = soup.find_all('p', class_='pw-post-body-paragraph')
+
+        readinTime = soup.find_all('div', class_='pw-reading-time')
+
+        try:
+            clap, follower = aditionalValues(pages)
+        except Exception as e:
+            continue
 
         for texts in text:
             tempTextHolder.append(texts.get_text())
 
 
+        if (title  and date  and readinTime ):
+                titleHolder.append(title[0].get_text())
+                dateHolder.append(date[0].get_text())
+                readingTimeHolder.append(readinTime[0].get_text())
+                textIndexHolder.append(tempTextHolder)
+                clapHolder.append(clap)
+                followerHolder.append(follower)
+                numberOfImages.append(len(img))
 
-        textIndexHolder.append(tempTextHolder)
-        clapHolder.append(clap)
-        followerHolder.append(follower)
 
-    header = ["Clap", "Follower", "Text"]
+
+    print("we have :", len(titleHolder), "pages in total")
+    print("we have :", len(dateHolder), "data in total")
+    print("we have :", len(readingTimeHolder), "reading in total")
+    print("we have :", len(textIndexHolder), "text in total")
+    print("we have :", len(clapHolder), "clap in total")
+    print("we have :", len(followerHolder), "follower in total")
+    print("we have :", len(numberOfImages), "number of image in total")
+
+
+    header = ["Title", "Date", "Reading time", "Text", "Clap", "Follower", "Number of images"]
 
     with open('dataHolder.csv', 'w', encoding='UTF8') as f:
         writer = csv.writer(f)
         writer.writerow(header)
-        writer.writerows(zip(clapHolder, followerHolder, textIndexHolder))
+        writer.writerows(zip(titleHolder, dateHolder, readingTimeHolder, textIndexHolder, clapHolder, followerHolder, numberOfImages))
     f.close()
 
     data = pd.read_csv('dataHolder.csv')
     print(data.head())
 
 
-
-
-
-
 def aditionalValues(page):
+
     aditionalPage = requests.get(page).content.decode("utf-8")
 
     claps = aditionalPage.split("clapCount\":")[1]
@@ -121,32 +155,30 @@ def aditionalValues(page):
 
     return claps, followerNumber
 
+
 def scrapeWebFromArchive():
 
     tempCounter = 0
     webHolder = []
     webRedirectingForMonth = []
     webRedirectingForDay = []
-    page = requests.get("https://medium.com/tag/t%C3%BCrk%C3%A7e/archive/2015")
-    soup = BeautifulSoup(page.content, 'html.parser')
+
+    for x in range(2009, 2015 + 1):
 
 
-
-
-    links = soup.find_all('a', class_ = "")
-
-
-
-    for x in range(2009,2011):
-        print("Finished year: " + str(x))
+        print("Started scaping Websites from year : " + str(x))
         tempCounter = 0
         webRedirectingForMonth = []
         webRedirectingForDay = []
 
-        page = requests.get("https://medium.com/tag/t%C3%BCrk%C3%A7e/archive/"+str(x))
+        page = requests.get("https://medium.com/tag/t%C3%BCrk%C3%A7e/archive/" + str(x))
+
+
+
         soup = BeautifulSoup(page.content, 'html.parser')
 
         links = soup.find_all('a', class_="")
+
         for link in links:
             if (link.get('data-action-source') != None):
                 webHolder.append(link.get('href'))
@@ -154,6 +186,7 @@ def scrapeWebFromArchive():
                 webRedirectingForMonth.append(link.get('href'))
 
         for link in webRedirectingForMonth:
+
             page = requests.get(link)
             soup = BeautifulSoup(page.content, 'html.parser')
             links = soup.find_all('a', class_="")
@@ -171,14 +204,6 @@ def scrapeWebFromArchive():
                 if (link.get('data-action-source') != None):
                     webHolder.append(link.get('href'))
 
-
     pullDataFromWeb(webHolder)
 
-    print("we have :",len(webHolder),"pages in total")
-
-
-
-
-
-
-
+    print("we have :", len(webHolder), "pages in total")
