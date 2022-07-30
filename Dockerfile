@@ -8,4 +8,4 @@ ADD webScraper.py .
 
 RUN pip install beautifulsoup4==4.11.1 pandas==1.4.3 requests==2.28.1
 
-CMD ["python", "./setup.py"]
+CMD ["python", "./setup.py","./webScraper.py"]
