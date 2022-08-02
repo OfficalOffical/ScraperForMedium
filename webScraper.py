@@ -78,7 +78,7 @@ def pullDataFromWeb(webHolder):
     print("This website contains :", len(webHolder), "pages")
 
     for pages in webHolder:
-        counter +=1
+        counter += 1
         tempTextHolder = []
 
         try:
@@ -109,7 +109,7 @@ def pullDataFromWeb(webHolder):
             tempTextHolder.append(texts.get_text())
 
 
-        if (title  and date  and readinTime ):
+        if (title  and date  and readinTime):
                 titleHolder.append(title[0].get_text())
                 dateHolder.append(date[0].get_text())
                 readingTimeHolder.append(readinTime[0].get_text())
@@ -165,7 +165,7 @@ def scrapeWebFromArchive():
     webRedirectingForMonth = []
     webRedirectingForDay = []
 
-    for x in range(2009, 2012 + 1):
+    for x in range(2009, 2014 + 1):
 
 
         print("Started scaping Websites from year : " + str(x))
